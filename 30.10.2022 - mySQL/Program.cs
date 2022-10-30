@@ -17,6 +17,18 @@ namespace SQLiteLAB
             string nameOfFile = "";
             string nameOfTable = "";
             int QuantityOfRows = 0;
+            bool NoArguments = false;
+
+            string MyStringToChange = "'***'";
+            try
+            {
+                MyStringToChange = "'" + args[0] + "'";
+            }
+            catch
+            {
+                Console.WriteLine("Нет аргументов командной строки");
+                NoArguments = true;
+            }
 
             Console.Write("Введите имя файла: ");
             nameOfFile = Console.ReadLine();
@@ -35,7 +47,7 @@ namespace SQLiteLAB
                 return;
             }
 
-            while (choise != 6)
+            while (choise != 7)
             {
                 Console.WriteLine();
                 Console.WriteLine("1. Создание таблицы");
@@ -43,7 +55,8 @@ namespace SQLiteLAB
                 Console.WriteLine("3. Обновление данных в таблице");
                 Console.WriteLine("4. Вывести все данные в таблице");
                 Console.WriteLine("5. Удалить таблицу");
-                Console.WriteLine("6. Выход");
+                Console.WriteLine("6. Удалить строку по условию");
+                Console.WriteLine("7. Выход");
 
                 choise = int.Parse(Console.ReadLine());
 
@@ -96,7 +109,7 @@ namespace SQLiteLAB
                         int ChoiseToChange = 0;
                         string NumberOfRow = "";
                         string MyChange = "";
-                        string MyStringToChange = "";
+                       // string MyStringToChange = "";
 
                         Console.Write("Введите номер строки: ");
                         NumberOfRow = Console.ReadLine();
@@ -127,10 +140,11 @@ namespace SQLiteLAB
                             case 5:
                                 break;
                         }
-                        
-                        Console.Write("Введите новое значение: ");
-                        MyStringToChange = Console.ReadLine();
 
+                        if (NoArguments == true) {
+                            Console.Write("Введите новое значение: ");
+                            MyStringToChange = Console.ReadLine();
+                        }
 
                         SQLCommand = $"UPDATE {nameOfTable}" + $" SET {MyChange} = '{MyStringToChange}'" + $" WHERE id = {NumberOfRow};";
 
@@ -178,6 +192,31 @@ namespace SQLiteLAB
                         break;
                     case 6:
 
+                        ConnectParametr = $@"Data source = {nameOfFile}" + ".db; Version = 3;Mode=ReadWriteCreate;";
+
+                        string StringToDelete = "";
+                        Console.Write("Введите номер строки для удаления: ");
+                        StringToDelete = Console.ReadLine();
+
+                        if(int.Parse(StringToDelete) < 0 || int.Parse(StringToDelete) > QuantityOfRows)
+                        {
+                            Console.WriteLine("Ошибка ввода");
+                            break;
+                        }
+
+                       SQLCommand = $"DELETE FROM {nameOfTable} WHERE id = {StringToDelete};";
+
+                       SQLiteConnection _sqlite6 = new SQLiteConnection(ConnectParametr);
+                        _sqlite6.Open();
+                        SQLiteCommand cmd6 = _sqlite6.CreateCommand();
+                        cmd6.CommandText = (SQLCommand);
+                        cmd6.ExecuteReader();
+                        _sqlite6.Close();
+
+                        Console.WriteLine($"Строка {StringToDelete} удалена");
+
+                        break;
+                    case 7:
                         break;
                 }
             }
